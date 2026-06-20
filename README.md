@@ -1,0 +1,670 @@
+[Guess the word.html](https://github.com/user-attachments/files/29158672/Guess.the.word.html)
+
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вгадай слово</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f0f0f0;
+    text-align: center;
+    margin-top: 40px;
+}
+
+#gameBox {
+    width: 650px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px gray;
+}
+
+h1 {
+    color: darkblue;
+}
+
+#word {
+    font-size: 40px;
+    letter-spacing: 10px;
+    margin: 25px;
+}
+
+#message {
+    font-size: 24px;
+    margin: 20px;
+    color: blue;
+}
+
+#attempts {
+    font-size: 24px;
+    color: red;
+    margin: 15px;
+}
+
+#score {
+    font-size: 24px;
+    color: green;
+    margin: 15px;
+}
+
+#usedLetters {
+    margin: 20px;
+    font-size: 20px;
+}
+
+input {
+    width: 220px;
+    height: 40px;
+    font-size: 24px;
+    text-align: center;
+    margin: 10px;
+}
+
+button {
+    width: 180px;
+    height: 45px;
+    font-size: 18px;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+select {
+    width: 250px;
+    height: 40px;
+    font-size: 18px;
+    margin: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="gameBox">
+
+    <h1>ГРА "ВГАДАЙ СЛОВО"</h1>
+
+    <h3>Категорія</h3>
+
+    <select id="categorySelect">
+        <option value="animals">Тварини</option>
+        <option value="countries">Країни</option>
+        <option value="it">IT</option>
+        <option value="plants">Рослини</option>
+    </select>
+
+    <div id="word">_ _ _ _</div>
+
+    <div id="attempts">
+        Спроб: 10
+    </div>
+
+    <div id="score">
+        Бали: 1
+    </div>
+
+    <div id="usedLetters">
+        Використані букви:
+    </div>
+
+    <input
+        type="text"
+        id="letterInput"
+        maxlength="1"
+        placeholder="Буква">
+
+    <button onclick="checkLetter()">
+        Перевірити букву
+    </button>
+
+    <br>
+
+    <input
+        type="text"
+        id="wordInput"
+        placeholder="Введіть слово">
+
+    <button onclick="checkWord()">
+        Вгадати слово
+    </button>
+
+    <br>
+
+    <button onclick="showHintLetter()">
+        Показати букву
+    </button>
+
+    <button onclick="startGame()">
+        Нова гра
+    </button>
+
+    <div id="message"></div>
+
+</div>
+
+<script>
+
+const categories = {
+
+    animals: [
+        "кіт",
+        "собака",
+        "тигр",
+        "кролик",
+        "лев",
+        "леопард",
+        "ягуар",
+        "гепард",
+        "вовк",
+        "лисиця",
+        "ведмідь",
+        "панда",
+        "коала",
+        "кенгуру",
+        "слон",
+        "жирафа",
+        "зебра",
+        "носоріг",
+        "бегемот",
+        "антилопа",
+        "лось",
+        "олень",
+        "кабан",
+        "заєць",
+        "білка",
+        "їжак",
+        "бобер",
+        "видра",
+        "єнот",
+        "мавпа",
+        "горила",
+        "шимпанзе",
+        "орангутан",
+        "верблюд",
+        "лама",
+        "альпака",
+        "кінь",
+        "осел",
+        "корова",
+        "коза",
+        "вівця",
+        "свиня",
+        "дельфін",
+        "кит",
+        "акула",
+        "тюлень",
+        "морж",
+        "пінгвін",
+        "крокодил",
+        "черепаха",
+    ],
+
+    countries: [
+       "україна",
+        "польща",
+        "франція",
+        "канада",
+        "німеччина",
+        "італія",
+        "іспанія",
+        "португалія",
+        "нідерланди",
+        "бельгія",
+        "швейцарія",
+        "австрія",
+        "чехія",
+        "словаччина",
+        "угорщина",
+        "румунія",
+        "болгарія",
+        "греція",
+        "туреччина",
+        "швеція",
+        "норвегія",
+        "фінляндія",
+        "данія",
+        "ірландія",
+        "британія",
+        "сша",
+        "мексика",
+        "бразилія",
+        "аргентина",
+        "чилі",
+        "перу",
+        "колумбія",
+        "венесуела",
+        "єгипет",
+        "марокко",
+        "алжир",
+        "пар",
+        "нігерія",
+        "кенія",
+        "індія",
+        "китай",
+        "японія",
+        "корея",
+        "індонезія",
+        "таїланд",
+        "в'єтнам",
+        "австралія",
+        "зеландія",
+        "казахстан",
+        "узбекистан",
+    ],
+
+    it: [
+         "браузер",
+        "монітор",
+        "клавіатура",
+        "інтернет",
+        "процесор",
+        "сервер",
+        "ноутбук",
+        "смартфон",
+        "принтер",
+        "сканер",
+        "роутер",
+        "модем",
+        "файл",
+        "папка",
+        "мережа",
+        "сайт",
+        "домен",
+        "хостинг",
+        "програма",
+        "додаток",
+        "система",
+        "драйвер",
+        "алгоритм",
+        "код",
+        "програмування",
+        "база",
+        "таблиця",
+        "запит",
+        "пароль",
+        "логін",
+        "акаунт",
+        "пошта",
+        "вірус",
+        "антивірус",
+        "брандмауер",
+        "шифрування",
+        "копія",
+        "хмара",
+        "інтелект",
+        "нейромережа",
+        "чатбот",
+        "робот",
+        "дебаг",
+        "компілятор",
+        "інтерфейс",
+        "плагін",
+        "віджет",
+        "консоль",
+        "термінал",
+        "репозиторій",
+        "гіт",
+        "фреймворк",
+        "бібліотека",
+        "скрипт"
+    ],
+
+    plants: [
+        "троянда",
+        "тюльпан",
+        "ромашка",
+        "соняшник",
+        "лілія",
+        "орхідея",
+        "півонія",
+        "айстра",
+        "хризантема",
+        "нарцис",
+        "мак",
+        "фіалка",
+        "дзвіночок",
+        "конвалія",
+        "жоржина",
+        "гвоздика",
+        "ірис",
+        "лаванда",
+        "мальва",
+        "бузок",
+        "жасмин",
+        "м'ята",
+        "кропива",
+        "подорожник",
+        "кульбаба",
+        "полин",
+        "чебрець",
+        "алое",
+        "кактус",
+        "папороть",
+        "ялина",
+        "сосна",
+        "дуб",
+        "береза",
+        "клен",
+        "липа",
+        "верба",
+        "тополя",
+        "каштан",
+        "горобина",
+        "яблуня",
+        "груша",
+        "вишня",
+        "черешня",
+        "слива",
+        "абрикос",
+        "персик",
+        "виноград",
+        "смородина",
+        "малина", 
+    ]
+};
+
+let currentCategory = "animals";
+let secretWord = "";
+let hiddenWord = [];
+let attempts = 10;
+let usedLetters = [];
+let score = 1;
+
+startGame();
+
+function startGame() {
+
+    score = 1;
+
+    currentCategory =
+        document.getElementById(
+            "categorySelect"
+        ).value;
+
+    let selectedWords =
+        categories[currentCategory];
+
+    secretWord =
+        selectedWords[
+            Math.floor(
+                Math.random() *
+                selectedWords.length
+            )
+        ];
+
+    hiddenWord = [];
+    usedLetters = [];
+    attempts = 10;
+
+    for (let i = 0; i < secretWord.length; i++) {
+        hiddenWord.push("_");
+    }
+
+    updateWord();
+    updateTexts();
+    showMessage("");
+
+    document.getElementById(
+        "letterInput"
+    ).disabled = false;
+
+    document.getElementById(
+        "wordInput"
+    ).disabled = false;
+}
+
+function updateWord() {
+
+    document.getElementById(
+        "word"
+    ).innerHTML =
+        hiddenWord.join(" ");
+
+}
+
+function updateTexts() {
+
+    document.getElementById(
+        "attempts"
+    ).innerHTML =
+        "Спроб: " + attempts;
+
+    document.getElementById(
+        "usedLetters"
+    ).innerHTML =
+        "Використані букви: " +
+        usedLetters.join(", ");
+
+    document.getElementById(
+        "score"
+    ).innerHTML =
+        "Бали: " + score;
+}
+
+function checkLetter() {
+
+    let input =
+        document.getElementById(
+            "letterInput"
+        );
+
+    let letter =
+        input.value.toLowerCase();
+
+    input.value = "";
+
+    if (letter === "") {
+
+        showMessage(
+            "Введіть букву!"
+        );
+
+        return;
+    }
+
+    if (
+        usedLetters.includes(letter)
+    ) {
+
+        attempts--;
+
+        updateTexts();
+
+        showMessage(
+            "Цю букву вже вводили! -1 спроба!"
+        );
+
+        checkGameResult();
+
+        return;
+    }
+
+    usedLetters.push(letter);
+
+    let found = false;
+
+    for (
+        let i = 0;
+        i < secretWord.length;
+        i++
+    ) {
+
+        if (
+            secretWord[i] === letter
+        ) {
+
+            hiddenWord[i] = letter;
+            found = true;
+        }
+    }
+
+    if (found) {
+
+        score += 10;
+
+        showMessage(
+            "Правильно! +10 балів"
+        );
+
+    } else {
+
+        attempts--;
+
+        showMessage(
+            "Такої букви немає!"
+        );
+    }
+
+    updateWord();
+    updateTexts();
+    checkGameResult();
+}
+
+function checkWord() {
+
+    let userWord =
+        document.getElementById(
+            "wordInput"
+        ).value.toLowerCase();
+
+    document.getElementById(
+        "wordInput"
+    ).value = "";
+
+    if (userWord === secretWord) {
+
+        hiddenWord =
+            secretWord.split("");
+
+        updateWord();
+
+        showMessage(
+            "ВІТАЄМО! Ви перемогли!"
+        );
+
+        disableGame();
+
+    } else {
+
+        showMessage(
+            "Ви програли! Слово: " +
+            secretWord
+        );
+
+        disableGame();
+    }
+}
+
+function showHintLetter() {
+
+    let closedLetters = [];
+
+    for (
+        let i = 0;
+        i < hiddenWord.length;
+        i++
+    ) {
+
+        if (
+            hiddenWord[i] === "_"
+        ) {
+
+            closedLetters.push(i);
+        }
+    }
+
+    if (
+        closedLetters.length === 0
+    ) {
+        return;
+    }
+
+    let randomIndex =
+        closedLetters[
+            Math.floor(
+                Math.random() *
+                closedLetters.length
+            )
+        ];
+
+    hiddenWord[randomIndex] =
+        secretWord[randomIndex];
+
+    score -= 30;
+    attempts--;
+
+    updateWord();
+    updateTexts();
+
+    showMessage(
+        "Підказку використано! -30 балів"
+    );
+
+    checkGameResult();
+}
+
+     function checkGameResult() {
+
+    if (score <= 0) {
+
+        score = 0;
+        updateTexts();
+
+        showMessage(
+            "Ви програли! Бали закінчилися. Слово: " +
+            secretWord
+        );
+
+        disableGame();
+        return;
+    }
+
+    if (attempts <= 0) {
+
+        showMessage(
+            "Ви програли! Слово: " +
+            secretWord
+        );
+
+        disableGame();
+        return;
+    }
+
+    if (hiddenWord.join("") === secretWord) {
+
+        showMessage(
+            "ВІТАЄМО! Ви перемогли!"
+        );
+
+        disableGame();
+    }
+}
+
+function showMessage(text) {
+
+    document.getElementById(
+        "message"
+    ).innerHTML = text;
+}
+
+function disableGame() {
+
+    document.getElementById(
+        "letterInput"
+    ).disabled = true;
+
+    document.getElementById(
+        "wordInput"
+    ).disabled = true;
+}
+
+</script>
+
+</body>
+</html>
